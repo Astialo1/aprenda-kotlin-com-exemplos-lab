@@ -1,21 +1,73 @@
-// [Template no Kotlin Playground](https://pl.kotl.in/WcteahpyN)
+// Representa um conteúdo educacional dentro de uma formação
+data class ConteudoEducacional(
+    val nome: String,
+    val duracao: Int, // duração em horas
+    val prerequisito: ConteudoEducacional? = null // Pode ter um pré-requisito
+)
 
-enum class Nivel { BASICO, INTERMEDIARIO, DIFICIL }
+// Representa um aluno
+data class Aluno(val nome: String, val email: String)
 
-class Usuario
+// Representa uma formação
+class Formacao(
+    val nome: String,
+    val nivel: Nivel,
+    val conteudos: List<ConteudoEducacional>,
+    private val limiteAlunos: Int = 50 // Definindo um limite de alunos por formação
+) {
+    private val alunosMatriculados = mutableListOf<Aluno>()
 
-data class ConteudoEducacional(var nome: String, val duracao: Int = 60)
+    // Método para matricular alunos
+    fun matricular(aluno: Aluno) {
+        if (alunosMatriculados.size >= limiteAlunos) {
+            println("Matrícula falhou: Limite de alunos atingido para a formação $nome.")
+            return
+        }
+        if (alunosMatriculados.contains(aluno)) {
+            println("${aluno.nome} já está matriculado na formação $nome.")
+            return
+        }
+        alunosMatriculados.add(aluno)
+        println("${aluno.nome} foi matriculado na formação $nome.")
+    }
 
-data class Formacao(val nome: String, var conteudos: List<ConteudoEducacional>) {
-
-    val inscritos = mutableListOf<Usuario>()
-    
-    fun matricular(usuario: Usuario) {
-        TODO("Utilize o parâmetro $usuario para simular uma matrícula (usar a lista de $inscritos).")
+    // Método para listar alunos matriculados
+    fun listarAlunos() {
+        println("\nAlunos matriculados na formação $nome:")
+        if (alunosMatriculados.isEmpty()) {
+            println("Nenhum aluno matriculado.")
+        } else {
+            alunosMatriculados.forEach { println("- ${it.nome}") }
+        }
     }
 }
 
+// Enum para representar os níveis das formações
+enum class Nivel { BASICO, INTERMEDIARIO, AVANCADO }
+
+// Função para simular testes
 fun main() {
-    TODO("Analise as classes modeladas para este domínio de aplicação e pense em formas de evoluí-las.")
-    TODO("Simule alguns cenários de teste. Para isso, crie alguns objetos usando as classes em questão.")
+    println("🚀 Iniciando os testes...")
+
+    // Criando conteúdos educacionais com pré-requisitos
+    val kotlinBasico = ConteudoEducacional("Introdução ao Kotlin", 8)
+    val pooKotlin = ConteudoEducacional("POO em Kotlin", 12, kotlinBasico)
+    val coroutines = ConteudoEducacional("Programação Assíncrona com Kotlin Coroutines", 10, pooKotlin)
+
+    // Criando formação
+    val formacaoKotlin = Formacao("Kotlin Developer", Nivel.INTERMEDIARIO, listOf(kotlinBasico, pooKotlin, coroutines), limiteAlunos = 2)
+
+    // Criando alunos
+    val aluno1 = Aluno("Bruno", "bruno@email.com")
+    val aluno2 = Aluno("Mariana", "mariana@email.com")
+    val aluno3 = Aluno("Carlos", "carlos@email.com") // Este aluno não conseguirá se matricular
+
+    // Testando matrícula
+    formacaoKotlin.matricular(aluno1) // OK
+    formacaoKotlin.matricular(aluno2) // OK
+    formacaoKotlin.matricular(aluno1) // Falha (já matriculado)
+    formacaoKotlin.matricular(aluno3) // Falha (limite de alunos)
+
+    // Listando alunos matriculados
+    formacaoKotlin.listarAlunos()
 }
